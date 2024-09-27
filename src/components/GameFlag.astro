@@ -1,0 +1,86 @@
+---
+import iso3166 from 'iso-3166-1';
+
+const { maxQuestions } = Astro.props
+const countries = JSON.stringify(iso3166.all());
+---
+
+<div class="columns is-centered" x-data=`game(${maxQuestions}, ${countries})`>
+    <div class="sub-section">
+        <h3 class="title ">Flag Quiz</h3>
+        <h4 class="subtitle "> Click on the flag to check it </h4>
+
+        <div class="has-text-centered is-size-3">
+            <span x-text="score"></span> / <span x-text="maxQuestions"></span>
+        </div> 
+        <div class="has-text-centered  is-size-3">
+           Question : <span x-text="correctFlag"></span> 
+        </div> 
+        <div class="columns is-centered">
+            <template x-for="flag in possiblesFlags" :key="flag">
+                <div class="column has-text-centered block">
+                    <button @click.prevent="check(flag)" class="button">
+                        <span class="is-size-1" x-text="getFlagEmoji(flag)"></span>
+                    </button>
+                </div>
+            </template>
+        </div>
+    </div>
+</div>
+
+<script is:inline>
+
+document.addEventListener('alpine:init', () => {
+    Alpine.data('game', (maxQuestions, countries) => ({
+        maxQuestions: maxQuestions,
+        countries: countries,
+        possiblesFlags: [],
+        correctFlag: '',
+        score: 0,
+        counterQuestions: 0,
+
+        init() {
+            this.getFlags();
+        },
+
+        getFlags() {
+            this.possiblesFlags = [];
+            
+            while (this.possiblesFlags.length < 4) {
+                let randomIndex = Math.floor(Math.random() * this.countries.length);
+                this.possiblesFlags.push(this.countries[randomIndex].alpha2);
+            }
+
+            // Sélectionne un drapeau correct parmi les drapeaux générés
+            this.correctFlag = this.possiblesFlags[Math.floor(Math.random() * this.possiblesFlags.length)];
+            console.log(this.correctFlag, this.possiblesFlags);
+        },
+
+        getFlagEmoji(countryCode) {
+            return [...countryCode.toUpperCase()]
+                .map((char) => String.fromCodePoint(127397 + char.charCodeAt(0)))
+                .join('');
+        },
+
+        check(flag) {
+            if(this.counterQuestions === this.maxQuestions) {
+                this.finishGame();
+            }
+            if (flag === this.correctFlag) {
+                this.score++;
+            }
+            this.counterQuestions++;
+            this.getFlags();
+        },
+
+        finishGame() {
+            this.counterQuestions = 0;
+            this.score = 0;
+            this.getFlags();
+        }
+    }))
+
+});
+
+    
+</script>
