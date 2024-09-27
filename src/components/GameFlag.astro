@@ -14,7 +14,7 @@ const countries = JSON.stringify(iso3166.all());
             <span x-text="score"></span> / <span x-text="maxQuestions"></span>
         </div> 
         <div class="has-text-centered  is-size-3">
-           Question : <span x-text="correctFlag"></span> 
+           Question : <span x-text="correctCountry"></span> 
         </div> 
         <div class="columns is-centered">
             <template x-for="flag in possiblesFlags" :key="flag">
@@ -35,7 +35,7 @@ document.addEventListener('alpine:init', () => {
         maxQuestions: maxQuestions,
         countries: countries,
         possiblesFlags: [],
-        correctFlag: '',
+        correctCountry: '',
         score: 0,
         counterQuestions: 0,
 
@@ -50,10 +50,11 @@ document.addEventListener('alpine:init', () => {
                 let randomIndex = Math.floor(Math.random() * this.countries.length);
                 this.possiblesFlags.push(this.countries[randomIndex].alpha2);
             }
-
+            
             // Sélectionne un drapeau correct parmi les drapeaux générés
-            this.correctFlag = this.possiblesFlags[Math.floor(Math.random() * this.possiblesFlags.length)];
-            console.log(this.correctFlag, this.possiblesFlags);
+            let correctFlag = this.possiblesFlags[Math.floor(Math.random() * this.possiblesFlags.length)];
+            this.correctCountry = this.countries.find(c => c.alpha2 === correctFlag).country;
+            console.log(this.correctCountry, this.possiblesFlags);
         },
 
         getFlagEmoji(countryCode) {
